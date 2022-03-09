@@ -6,10 +6,6 @@ import java.util.Comparator;
 import java.util.List;
 
 public class PaginatedList<E> {
-
-    // fields
-    private List<List<E>> data;
-
     //helpers
     private static final String ONE_BASED_INDEX="We use 1-based indexing here sir";
     private static final String NEGATIVE_PAGE_SIZE="Use positive page size";
@@ -46,6 +42,10 @@ public class PaginatedList<E> {
         }
     }
 
+    // fields
+    private List<List<E>> data;
+
+
     private void populate(Collection<E> elements, int n, Comparator<E> criteria) {
         if (n<1)
             throw new IndexOutOfBoundsException(NEGATIVE_PAGE_SIZE);
@@ -63,19 +63,20 @@ public class PaginatedList<E> {
             buildPaginated(data, allPages, n, fullPageSize);
     }
 
+    // constructors
     /**
      * Builds a paginated list with a user-defined page size and sorting criteria from input elements
      * @param elements collection of elements to paginate
-     * @param n number of pages to set
+     * @param pageSize number of pages to set
      * @param criteria Comparator sorting criteria
      */
-    public PaginatedList(Collection<E> elements, int n, Comparator<E> criteria){populate(elements, n, criteria);}
+    public PaginatedList(Collection<E> elements, int pageSize, Comparator<E> criteria){populate(elements, pageSize, criteria);}
     /**
      * Builds a paginated list with a user-defined page size from input elements
      * @param elements collection of elements to paginate
-     * @param n number of pages to set
+     * @param pageSize number of pages to set
      */
-    public PaginatedList(Collection<E> elements, int n) {this(elements, n, null);}
+    public PaginatedList(Collection<E> elements, int pageSize) {this(elements, pageSize, null);}
 
     /**
      * Builds a paginated list with a user-defined sorting criteria and default page size of 10 from input elements
@@ -90,6 +91,8 @@ public class PaginatedList<E> {
      */
     public PaginatedList(Collection<E> elements) {this(elements, DEFAULT_PAGE_SIZE, null);}
 
+
+    // accessors
     /**
      * Gets the contents of a page
      * @param pageNum page number to index into
@@ -103,12 +106,46 @@ public class PaginatedList<E> {
     }
 
     /**
+     * first page
+     * @return data.get(0)
+     */
+    public List<E>first(){return get(1);}
+
+    /**
+     * last page
+     * @return data.get(data.size() -1)
+     */
+    public List<E>last(){return get(data.size());}
+
+    /**
      * Gets the full list of pages
      * @return list of pages
      */
     public List<List<E>> getList(){return data;}
 
+    /**
+     * converts the paginated list to single list
+     * @return list of all elements
+     */
+    public List<E> flatten(){
+        List<E> ret = new ArrayList<>();
+        data.forEach(ret::addAll);
+        return ret;
+    }
+
+
     // overridden methods from java.lang.Object
     @Override
     public String toString() {return getList().toString();}
+
+    @Override
+    public boolean equals(Object o)
+    {
+        if (!(o instanceof PaginatedList<?> obj)) return false;
+        if (o == this) return true;
+        return data.equals(obj.data);
+    }
+
+    @Override
+    public int hashCode() {return data.hashCode();}
 }
